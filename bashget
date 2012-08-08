@@ -1,0 +1,21 @@
+#!/bin/bash
+
+VERSION="bash42"
+PATCHLEVEL="037"
+
+rm patch.tmp
+
+for LEVEL in $(seq -f %03g ${PATCHLEVEL}) ; do
+    if [ -f "${VERSION}-${LEVEL}" ] ; then
+	echo "${VERSION}-${LEVEL} already here."
+	cat ${VERSION}-${LEVEL} >> patch.tmp
+    else
+        echo "getting ${VERSION}-${LEVEL}"
+        wget ftp://ftp.gnu.org/gnu/bash/bash-4.2-patches/${VERSION}-${LEVEL}
+        cat ${VERSION}-${LEVEL} >> patch.tmp
+    fi
+done
+
+mv patch.tmp bash-patchlevel-${LEVEL}.patch
+rm -f $VERSION-???.patch
+

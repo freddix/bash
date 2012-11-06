@@ -4,7 +4,7 @@
 Summary:	GNU Bourne Again Shell (bash)
 Name:		bash
 Version:	%{ver}.%{patchlevel}
-Release:	7
+Release:	8
 License:	GPL
 Group:		Applications/Shells
 Source0:	ftp://ftp.gnu.org/gnu/bash/%{name}-%{ver}.tar.gz

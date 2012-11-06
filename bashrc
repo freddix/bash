@@ -19,3 +19,5 @@ case $TERM in
 		;;
 esac
 
+export SHELL='/usr/bin/absh'
+

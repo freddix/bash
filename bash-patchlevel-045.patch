@@ -3357,3 +3357,456 @@ Patch (apply with `patch -p0'):
 ! #define PATCHLEVEL 37
   
   #endif /* _PATCHLEVEL_H_ */
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	4.2
+Patch-ID:	bash42-038
+
+Bug-Reported-by:	armandsl@gmail.com
+Bug-Reference-ID:	<20120822112810.8D14920040@windmill.latviatours.lv>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2012-08/msg00049.html
+
+Bug-Description:
+
+If a backslash-newline (which is removed) with no other input is given as
+input to `read', the shell tries to dereference a null pointer and seg faults.
+
+Patch (apply with `patch -p0'):
+
+*** ../bash-4.2-patched/builtins/read.def	2012-03-11 17:52:44.000000000 -0400
+--- builtins/read.def	2012-08-22 11:53:09.000000000 -0400
+***************
+*** 792,796 ****
+  #endif
+  
+!   if (saw_escape)
+      {
+        t = dequote_string (input_string);
+--- 847,851 ----
+  #endif
+  
+!   if (saw_escape && input_string && *input_string)
+      {
+        t = dequote_string (input_string);
+*** ../bash-4.2-patched/patchlevel.h	Sat Jun 12 20:14:48 2010
+--- patchlevel.h	Thu Feb 24 21:41:34 2011
+***************
+*** 26,30 ****
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 37
+  
+  #endif /* _PATCHLEVEL_H_ */
+--- 26,30 ----
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 38
+  
+  #endif /* _PATCHLEVEL_H_ */
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	4.2
+Patch-ID:	bash42-039
+
+Bug-Reported-by:	Dan Douglas <ormaaj@gmail.com>
+Bug-Reference-ID:	<1498458.MpVlmOXDB7@smorgbox>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2012-09/msg00008.html
+
+Bug-Description:
+
+Under certain circumstances, bash attempts to expand variables in arithmetic
+expressions even when evaluation is being suppressed.
+
+Patch (apply with `patch -p0'):
+
+*** ../bash-4.2-patched/expr.c	2011-11-21 18:03:35.000000000 -0500
+--- expr.c	2012-09-09 16:31:18.000000000 -0400
+***************
+*** 1010,1013 ****
+--- 1073,1082 ----
+  #endif
+  
++ /*itrace("expr_streval: %s: noeval = %d", tok, noeval);*/
++   /* If we are suppressing evaluation, just short-circuit here instead of
++      going through the rest of the evaluator. */
++   if (noeval)
++     return (0);
++ 
+    /* [[[[[ */
+  #if defined (ARRAY_VARS)
+***************
+*** 1183,1186 ****
+--- 1256,1263 ----
+  
+        *cp = '\0';
++       /* XXX - watch out for pointer aliasing issues here */
++       if (curlval.tokstr && curlval.tokstr == tokstr)
++ 	init_lvalue (&curlval);
++ 
+        FREE (tokstr);
+        tokstr = savestring (tp);
+*** ../bash-4.2-patched/patchlevel.h	Sat Jun 12 20:14:48 2010
+--- patchlevel.h	Thu Feb 24 21:41:34 2011
+***************
+*** 26,30 ****
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 38
+  
+  #endif /* _PATCHLEVEL_H_ */
+--- 26,30 ----
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 39
+  
+  #endif /* _PATCHLEVEL_H_ */
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	4.2
+Patch-ID:	bash42-040
+
+Bug-Reported-by:	Andrey Zaitsev <jstcdr@gmail.com>
+Bug-Reference-ID:	<CAEZVQT5PJ1Mb_Zh8LT5qz8sv+-9Q6hGfQ5DU9ZxdJ+gV7xBUaQ@mail.gmail.com>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2012-04/msg00144.html
+
+Bug-Description:
+
+Output redirection applied to builtin commands missed I/O errors if
+they happened when the file descriptor was closed, rather than on write
+(e.g., like with an out-of-space error on a remote NFS file system).
+
+Patch (apply with `patch -p0'):
+
+*** ../bash-4.2-patched/redir.c	2011-01-02 16:00:31.000000000 -0500
+--- redir.c	2012-04-24 20:42:12.000000000 -0400
+***************
+*** 1092,1099 ****
+  #if defined (BUFFERED_INPUT)
+  	  check_bash_input (redirector);
+! 	  close_buffered_fd (redirector);
+  #else /* !BUFFERED_INPUT */
+! 	  close (redirector);
+  #endif /* !BUFFERED_INPUT */
+  	}
+        break;
+--- 1092,1101 ----
+  #if defined (BUFFERED_INPUT)
+  	  check_bash_input (redirector);
+! 	  r = close_buffered_fd (redirector);
+  #else /* !BUFFERED_INPUT */
+! 	  r = close (redirector);
+  #endif /* !BUFFERED_INPUT */
++ 	  if (r < 0 && (flags & RX_INTERNAL) && (errno == EIO || errno == ENOSPC))
++ 	    REDIRECTION_ERROR (r, errno, -1);
+  	}
+        break;
+*** ../bash-4.2-patched/patchlevel.h	Sat Jun 12 20:14:48 2010
+--- patchlevel.h	Thu Feb 24 21:41:34 2011
+***************
+*** 26,30 ****
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 39
+  
+  #endif /* _PATCHLEVEL_H_ */
+--- 26,30 ----
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 40
+  
+  #endif /* _PATCHLEVEL_H_ */
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	4.2
+Patch-ID:	bash42-041
+
+Bug-Reported-by:	Andrey Borzenkov <arvidjaar@gmail.com>
+Bug-Reference-ID:	<20121202205200.2134478e@opensuse.site>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2012-12/msg00008.html
+
+Bug-Description:
+
+Process substitution incorrectly inherited a flag that inhibited using the
+(local) temporary environment for variable lookups if it was providing
+the filename to a redirection.  The intent the flag is to enforce the
+Posix command expansion ordering rules.
+
+Patch (apply with `patch -p0'):
+
+*** ../bash-4.2-patched/subst.c	2012-07-14 15:53:20.000000000 -0400
+--- subst.c	2012-12-02 22:26:54.000000000 -0500
+***************
+*** 5125,5128 ****
+--- 5129,5136 ----
+  #endif /* HAVE_DEV_FD */
+  
++   /* subshells shouldn't have this flag, which controls using the temporary
++      environment for variable lookups. */
++   expanding_redir = 0;
++ 
+    result = parse_and_execute (string, "process substitution", (SEVAL_NONINT|SEVAL_NOHIST));
+  
+*** ../bash-4.2-patched/patchlevel.h	Sat Jun 12 20:14:48 2010
+--- patchlevel.h	Thu Feb 24 21:41:34 2011
+***************
+*** 26,30 ****
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 40
+  
+  #endif /* _PATCHLEVEL_H_ */
+--- 26,30 ----
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 41
+  
+  #endif /* _PATCHLEVEL_H_ */
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	4.2
+Patch-ID:	bash42-042
+
+Bug-Reported-by:	Adam Pippin <adam@gp-inc.ca>
+Bug-Reference-ID:	<CAPYbNHr6ucZFOoWsRdUJj6KP3Ju0j1bkESa_cmb7iU+kZwdVpg@mail.gmail.com>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2012-11/msg00087.html
+
+Bug-Description:
+
+Compilation failed after specifying the  `--enable-minimal-config' option to
+configure (more specifically, specifying `--disable-alias').
+
+Patch (apply with `patch -p0'):
+
+*** ../bash-4.2-patched/parse.y	2012-07-08 21:53:33.000000000 -0400
+--- parse.y	2012-10-14 20:20:34.000000000 -0400
+***************
+*** 2394,2397 ****
+--- 2392,2396 ----
+  	   to consume the quoted newline and move to the next character in
+  	   the expansion. */
++ #if defined (ALIAS)
+  	if (expanding_alias () && shell_input_line[shell_input_line_index+1] == '\0')
+  	  {
+***************
+*** 2404,2408 ****
+  	    goto next_alias_char;	/* and get next character */
+  	  }
+! 	else	    
+  	  goto restart_read;
+      }
+--- 2403,2408 ----
+  	    goto next_alias_char;	/* and get next character */
+  	  }
+! 	else
+! #endif 
+  	  goto restart_read;
+      }
+
+*** ../bash-4.2-patched/patchlevel.h	Sat Jun 12 20:14:48 2010
+--- patchlevel.h	Thu Feb 24 21:41:34 2011
+***************
+*** 26,30 ****
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 41
+  
+  #endif /* _PATCHLEVEL_H_ */
+--- 26,30 ----
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 42
+  
+  #endif /* _PATCHLEVEL_H_ */
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	4.2
+Patch-ID:	bash42-043
+
+Bug-Reported-by:	konsolebox <konsolebox@gmail.com>
+Bug-Reference-ID:	<CAJnmqwZuGKLgMsMwxRK4LL+2NN+HgvmKzrnode99QBGrcgX1Lw@mail.gmail.com>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2013-01/msg00138.html
+
+Bug-Description:
+
+When SIGCHLD is trapped, and a SIGCHLD trap handler runs when a pending
+`read -t' invocation times out and generates SIGALRM, bash can crash with
+a segmentation fault.
+
+Patch (apply with `patch -p0'):
+
+*** ../bash-4.2-patched/builtins/read.def	2012-10-31 21:22:51.000517000 -0400
+--- builtins/read.def	2013-01-25 10:28:16.000038000 -0500
+***************
+*** 386,393 ****
+  	  /* Tricky.  The top of the unwind-protect stack is the free of
+  	     input_string.  We want to run all the rest and use input_string,
+! 	     so we have to remove it from the stack. */
+! 	  remove_unwind_protect ();
+! 	  run_unwind_frame ("read_builtin");
+  	  input_string[i] = '\0';	/* make sure it's terminated */
+  	  retval = 128+SIGALRM;
+  	  goto assign_vars;
+--- 386,403 ----
+  	  /* Tricky.  The top of the unwind-protect stack is the free of
+  	     input_string.  We want to run all the rest and use input_string,
+! 	     so we have to save input_string temporarily, run the unwind-
+! 	     protects, then restore input_string so we can use it later. */
+! 
+  	  input_string[i] = '\0';	/* make sure it's terminated */
++ 	  if (i == 0)
++ 	    {
++ 	      t = (char *)xmalloc (1);
++ 	      t[0] = 0;
++ 	    }
++ 	  else
++ 	    t = savestring (input_string);
++ 
++ 	  run_unwind_frame ("read_builtin");
++ 	  input_string = t;
+  	  retval = 128+SIGALRM;
+  	  goto assign_vars;
+
+*** ../bash-4.2-patched/patchlevel.h	Sat Jun 12 20:14:48 2010
+--- patchlevel.h	Thu Feb 24 21:41:34 2011
+***************
+*** 26,30 ****
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 42
+  
+  #endif /* _PATCHLEVEL_H_ */
+--- 26,30 ----
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 43
+  
+  #endif /* _PATCHLEVEL_H_ */
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	4.2
+Patch-ID:	bash42-044
+
+Bug-Reported-by:	"Dashing" <dashing@hushmail.com>
+Bug-Reference-ID:	<20130211175049.D90786F446@smtp.hushmail.com>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2013-02/msg00030.html
+
+Bug-Description:
+
+When converting a multibyte string to a wide character string as part of
+pattern matching, bash does not handle the end of the string correctly,
+causing the search for the NUL to go beyond the end of the string and
+reference random memory.  Depending on the contents of that memory, bash
+can produce errors or crash. 
+
+Patch (apply with `patch -p0'):
+
+*** ../bash-4.2-patched/lib/glob/xmbsrtowcs.c	2012-07-08 21:53:19.000000000 -0400
+--- lib/glob/xmbsrtowcs.c	2013-02-12 12:00:39.000000000 -0500
+***************
+*** 217,220 ****
+--- 217,226 ----
+        n = mbsnrtowcs(wsbuf+wcnum, &p, nms, wsbuf_size-wcnum, &state);
+  
++       if (n == 0 && p == 0)
++ 	{
++ 	  wsbuf[wcnum] = L'\0';
++ 	  break;
++ 	}
++ 
+        /* Compensate for taking single byte on wcs conversion failure above. */
+        if (wcslength == 1 && (n == 0 || n == (size_t)-1))
+***************
+*** 222,226 ****
+  	  state = tmp_state;
+  	  p = tmp_p;
+! 	  wsbuf[wcnum++] = *p++;
+  	}
+        else
+--- 228,238 ----
+  	  state = tmp_state;
+  	  p = tmp_p;
+! 	  wsbuf[wcnum] = *p;
+! 	  if (*p == 0)
+! 	    break;
+! 	  else
+! 	    {
+! 	      wcnum++; p++;
+! 	    }
+  	}
+        else
+
+*** ../bash-4.2-patched/patchlevel.h	Sat Jun 12 20:14:48 2010
+--- patchlevel.h	Thu Feb 24 21:41:34 2011
+***************
+*** 26,30 ****
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 43
+  
+  #endif /* _PATCHLEVEL_H_ */
+--- 26,30 ----
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 44
+  
+  #endif /* _PATCHLEVEL_H_ */
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	4.2
+Patch-ID:	bash42-045
+
+Bug-Reported-by:	Stephane Chazelas <stephane.chazelas@gmail.com>
+Bug-Reference-ID:	<20130218195539.GA9620@chaz.gmail.com>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2013-02/msg00080.html
+
+Bug-Description:
+
+The <&n- and >&n- redirections, which move one file descriptor to another,
+leave the file descriptor closed when applied to builtins or compound
+commands.
+
+Patch (apply with `patch -p0'):
+
+*** ../bash-4.2-patched/redir.c	2013-01-30 11:56:09.000000000 -0500
+--- redir.c	2013-02-19 09:38:36.000000000 -0500
+***************
+*** 1008,1011 ****
+--- 1008,1021 ----
+  	      REDIRECTION_ERROR (r, errno, -1);
+  	    }
++ 	  if ((flags & RX_UNDOABLE) && (ri == r_move_input || ri == r_move_output))
++ 	    {
++ 	      /* r_move_input and r_move_output add an additional close()
++ 		 that needs to be undone */
++ 	      if (fcntl (redirector, F_GETFD, 0) != -1)
++ 		{
++ 		  r = add_undo_redirect (redir_fd, r_close_this, -1);
++ 		  REDIRECTION_ERROR (r, errno, -1);
++ 		}
++ 	    }
+  #if defined (BUFFERED_INPUT)
+  	  check_bash_input (redirector);
+
+*** ../bash-4.2-patched/patchlevel.h	Sat Jun 12 20:14:48 2010
+--- patchlevel.h	Thu Feb 24 21:41:34 2011
+***************
+*** 26,30 ****
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 44
+  
+  #endif /* _PATCHLEVEL_H_ */
+--- 26,30 ----
+     looks for to find the patch level (for the sccs version string). */
+  
+! #define PATCHLEVEL 45
+  
+  #endif /* _PATCHLEVEL_H_ */

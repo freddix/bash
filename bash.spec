@@ -1,27 +1,27 @@
-%define		ver		4.2
-%define		patchlevel	045
+%define		ver		4.3
+%define		patchlevel	0
 
 Summary:	GNU Bourne Again Shell (bash)
 Name:		bash
-Version:	%{ver}.%{patchlevel}
+Version:	%{ver}%{?patchlevel:.%{patchlevel}}
 Release:	1
 License:	GPL
 Group:		Applications/Shells
 Source0:	ftp://ftp.gnu.org/gnu/bash/%{name}-%{ver}.tar.gz
-# Source0-md5:	3fb927c7c33022f1c327f14a81c0d4b0
+# Source0-md5:	81348932d5da294953e15d4814c74dd1
 Source1:	%{name}rc
 Source2:	.%{name}_logout
 Source3:	.%{name}_profile
 Source4:	.%{name}rc
 #
 Patch0:		%{name}-paths.patch
-Patch1000:	%{name}-patchlevel-%{patchlevel}.patch
+#Patch1000:	%{name}-patchlevel-%{patchlevel}.patch
 URL:		http://www.gnu.org/software/bash/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bison
 BuildRequires:	ncurses-devel
-BuildRequires:	readline-devel
+BuildRequires:	readline-devel >= 6.3
 BuildRequires:	texinfo
 Requires(postun):	/usr/sbin/postshell
 Requires:	grep
@@ -35,8 +35,7 @@ interpreter.
 
 %prep
 %setup -qn %{name}-%{ver}
-%patch1000 -p0
-
+#%patch1000 -p0
 %patch0 -p1
 
 %build
@@ -65,13 +64,14 @@ install %{SOURCE2} $RPM_BUILD_ROOT/etc/skel/.bash_logout
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/skel/.bash_profile
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/skel/.bashrc
 
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
-rm -f $RPM_BUILD_ROOT%{_bindir}/bashbug
+%{__rm} $RPM_BUILD_ROOT%{_bindir}/bashbug
 
 %find_lang %{name}
 
+%if 0
 %check
-#%{__make} tests
+%{__make} check
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT

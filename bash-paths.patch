@@ -1,24 +1,11 @@
-diff -urbB bash-3.0.org/config.h.in bash-3.0/config.h.in
---- bash-3.0.org/config.h.in	2004-07-21 22:08:31.000000000 +0200
-+++ bash-3.0/config.h.in	2005-10-08 19:35:26.593219000 +0200
-@@ -197,7 +197,7 @@
- 
- /* System paths */
- 
--#define DEFAULT_MAIL_DIRECTORY "/usr/spool/mail"
-+#define DEFAULT_MAIL_DIRECTORY "/var/mail"
- 
- /* Characteristics of the system's header files and libraries that affect
-    the compilation environment. */
-Tylko w bash-3.0: config.h.in.orig
-diff -urbB bash-3.0.org/config-top.h bash-3.0/config-top.h
---- bash-3.0.org/config-top.h	2003-08-05 16:36:12.000000000 +0200
-+++ bash-3.0/config-top.h	2005-10-08 19:36:04.395581500 +0200
-@@ -52,14 +52,14 @@
+diff -auurN bash-4.3.orig/config-top.h bash-4.3/config-top.h
+--- bash-4.3.orig/config-top.h	2014-02-27 12:03:46.939523979 +0100
++++ bash-4.3/config-top.h	2014-02-27 12:08:17.813306605 +0100
+@@ -59,14 +59,14 @@
  /* The default value of the PATH variable. */
  #ifndef DEFAULT_PATH_VALUE
  #define DEFAULT_PATH_VALUE \
--  "/usr/gnu/bin:/usr/local/bin:/bin:/usr/bin:."
+-  "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:."
 +  "/usr/local/bin:/usr/bin"
  #endif
  
@@ -31,7 +18,7 @@ diff -urbB bash-3.0.org/config-top.h bash-3.0/config-top.h
  #endif
  
  /* Default primary and secondary prompt strings. */
-@@ -73,7 +73,7 @@
+@@ -80,7 +80,7 @@
  #define KSH_COMPATIBLE_SELECT
  
  /* System-wide .bashrc file for interactive shells. */
@@ -40,3 +27,15 @@ diff -urbB bash-3.0.org/config-top.h bash-3.0/config-top.h
  
  /* System-wide .bash_logout for login shells. */
  /* #define SYS_BASH_LOGOUT "/etc/bash.bash_logout" */
+diff -auurN bash-4.3.orig/config.h.in bash-4.3/config.h.in
+--- bash-4.3.orig/config.h.in	2014-02-27 12:03:46.939523979 +0100
++++ bash-4.3/config.h.in	2014-02-27 12:05:12.509569496 +0100
+@@ -229,7 +229,7 @@
+ 
+ /* System paths */
+ 
+-#define DEFAULT_MAIL_DIRECTORY "/usr/spool/mail"
++#define DEFAULT_MAIL_DIRECTORY "/var/mail"
+ 
+ /* Characteristics of the system's header files and libraries that affect
+    the compilation environment. */

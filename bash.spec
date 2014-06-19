@@ -1,12 +1,12 @@
 %define		ver		4.3
-%define		patchlevel	0
+%define		patchlevel	18
 
-Summary:	GNU Bourne Again Shell (bash)
+Summary:	GNU Bourne Again Shell
 Name:		bash
 Version:	%{ver}%{?patchlevel:.%{patchlevel}}
 Release:	1
 License:	GPL
-Group:		Applications/Shells
+Group:		Core/Shells
 Source0:	ftp://ftp.gnu.org/gnu/bash/%{name}-%{ver}.tar.gz
 # Source0-md5:	81348932d5da294953e15d4814c74dd1
 Source1:	%{name}rc
@@ -15,7 +15,7 @@ Source3:	.%{name}_profile
 Source4:	.%{name}rc
 #
 Patch0:		%{name}-paths.patch
-#Patch1000:	%{name}-patchlevel-%{patchlevel}.patch
+%patchset_source -f https://ftp.gnu.org/gnu/bash/bash-4.3-patches/bash43-%03g 1 %{patchlevel}
 URL:		http://www.gnu.org/software/bash/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -30,13 +30,17 @@ Provides:	/bin/bash
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-Bash is a GNU project sh-compatible shell or command language
-interpreter.
+Bash is an sh-compatible shell that incorporates useful features from
+the Korn shell (ksh) and C shell (csh). It is intended to conform to
+the IEEE POSIX P1003.2/ISO 9945.2 Shell and Tools standard. It offers
+functional improvements over sh for both programming and interactive
+use. In addition, most sh scripts can be run by Bash without
+modification.
 
 %prep
 %setup -qn %{name}-%{ver}
-#%patch1000 -p0
 %patch0 -p1
+%{?patchlevel:%patchset_patch 1 %{patchlevel}}
 
 %build
 cp -f /usr/share/automake/config.* support

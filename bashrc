@@ -3,7 +3,7 @@
 
 # If not running interactively, don't do anything
 if [[ $- != *i* ]] ; then
-	return
+  return
 fi
 
 PS1="[\u@\h \W]\\$ "
@@ -12,12 +12,11 @@ PS3="> "
 PS4="+ "
 
 case $TERM in
-	gnome*|xterm*|rxvt*)
-		PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
-		;;
-	*)
-		;;
+  gnome*|xterm*|rxvt*)
+    PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
+    ;;
+  *)
+    ;;
 esac
 
-export SHELL='/usr/bin/absh'
-
+export SHELL='/usr/bin/bash'

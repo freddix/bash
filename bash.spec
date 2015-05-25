@@ -1,7 +1,7 @@
 # based on PLD Linux spec git://git.pld-linux.org/packages/bash.git
 
 %define		ver		4.3
-%define		patchlevel	29
+%define		patchlevel	30
 
 Summary:	GNU Bourne Again Shell
 Name:		bash
